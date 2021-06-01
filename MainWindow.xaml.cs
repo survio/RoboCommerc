@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 namespace RoboCommerc
 {
@@ -18,22 +25,18 @@ namespace RoboCommerc
         }
         private void FindButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists($"{PathLibraryTextBox.Text}")) return;
             string[] assemblies = Directory.GetFiles($"{PathLibraryTextBox.Text}", "*.dll");
-            if(assemblies.Length<=0) return;
-            ItemsControl.ItemsSource = getConditionType(assemblies, type => type.IsClass).OrderBy(x=>x.Name);
+            ItemsControl.ItemsSource = getTypeMethodFromAssembliesByCondition(assemblies,type => type.IsClass,method => method.IsFamily || method.IsPublic).OrderBy(x=>x.Name);
         }
-        private IEnumerable<Type> getConditionType(string[] assembliesPaths, Func<Type, bool> typeCondition)
+        private IEnumerable<TypeWrapper> getTypeMethodFromAssembliesByCondition(string[] assemblies, Func<Type,bool> typeSelector, Func<MethodInfo,bool> methodSelector)
         {
-            foreach (var assemblyPath in assembliesPaths)
+            foreach (var path in assemblies)
             {
-                var loadAssembly = Assembly.LoadFile(assemblyPath);
-                foreach (var classType in loadAssembly.GetTypes().Where(typeCondition))
+                foreach (var classType in Assembly.LoadFile(path).GetTypes().Where(typeSelector))
                 {
-                    yield return classType;
+                    yield return new TypeWrapper(classType, methodSelector);
                 }
             }
         }
     }
 }
-
