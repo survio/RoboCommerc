@@ -3,17 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RoboCommerc
 {
@@ -25,12 +16,14 @@ namespace RoboCommerc
         }
         private void FindButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!Directory.Exists($"{PathLibraryTextBox.Text}")) return;
             string[] assemblies = Directory.GetFiles($"{PathLibraryTextBox.Text}", "*.dll");
+            if (assemblies.Length <= 0) return;
             ItemsControl.ItemsSource = getTypeMethodFromAssembliesByCondition(assemblies,type => type.IsClass,method => method.IsFamily || method.IsPublic).OrderBy(x=>x.Name);
         }
-        private IEnumerable<TypeWrapper> getTypeMethodFromAssembliesByCondition(string[] assemblies, Func<Type,bool> typeSelector, Func<MethodInfo,bool> methodSelector)
+        private IEnumerable<TypeWrapper> getTypeMethodFromAssembliesByCondition(string[] assembliesPaths, Func<Type,bool> typeSelector, Func<MethodInfo,bool> methodSelector)
         {
-            foreach (var path in assemblies)
+            foreach (var path in assembliesPaths)
             {
                 foreach (var classType in Assembly.LoadFile(path).GetTypes().Where(typeSelector))
                 {
