@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace RoboCommerc
 {
@@ -23,22 +16,24 @@ namespace RoboCommerc
         {
             InitializeComponent();
         }
-
-        public List<Tuple<string, IEnumerable<string>>> testCollection;
         private void FindButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!Directory.Exists($"{PathLibraryTextBox.Text}")) return;
             string[] assemblies = Directory.GetFiles($"{PathLibraryTextBox.Text}", "*.dll");
-            testCollection = new List<Tuple<string, IEnumerable<string>>>();
-            Parallel.ForEach(assemblies, assemblyPath =>
+            if(assemblies.Length<=0) return;
+            ItemsControl.ItemsSource = getConditionType(assemblies, type => type.IsClass).OrderBy(x=>x.Name);
+        }
+        private IEnumerable<Type> getConditionType(string[] assembliesPaths, Func<Type, bool> typeCondition)
+        {
+            foreach (var assemblyPath in assembliesPaths)
             {
                 var loadAssembly = Assembly.LoadFile(assemblyPath);
-                var classesFromAssembly = loadAssembly.GetTypes().Where(x => x.IsClass);
-                foreach (var classType in classesFromAssembly)
+                foreach (var classType in loadAssembly.GetTypes().Where(typeCondition))
                 {
-                    testCollection.Add(Tuple.Create(classType.Name, classType.GetMethods().Where(x => x.IsPublic || x.IsFamily).Select(x => x.Name)));
+                    yield return classType;
                 }
-            });
-            ItemsControl.ItemsSource = testCollection;
+            }
         }
     }
 }
+

@@ -4,32 +4,42 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RoboCommerc"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="RoboCommers" Height="550" Width="400">
-    <ScrollViewer>
-        <StackPanel VerticalAlignment="Top" Width="Auto" Name="MainPanel" >
-            <DockPanel Margin="5,1,3,0">
-                <Button DockPanel.Dock="Right" Width="50" Content="Find" Click="FindButton_Click" Name="FindButton"></Button>
-                <Separator DockPanel.Dock="Right" Width="2" Visibility="Hidden"></Separator>
-                <TextBox DockPanel.Dock="Left" Height="43"  Text="Enter library path" VerticalContentAlignment="Center" Name="PathLibraryTextBox" />
-            </DockPanel>
-            <ItemsControl Name="ItemsControl">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Top" >
-                            <Label Background="Bisque" FontSize="18" Content="{Binding Item1}"></Label>
-                            <ItemsControl Name="NestedControl" ItemsSource="{Binding Item2}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Label  FontSize="14" Margin="6,0,0,-5"  VerticalContentAlignment="Top" HorizontalContentAlignment="Left" Content="{Binding }"></Label>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-    </ScrollViewer>
+    <Window.Resources>
+        <local:MethodInfoFilter x:Key="convertMethod"/>
+    </Window.Resources>
 
+    <Grid VerticalAlignment="Stretch" Width="Auto" Name="MainPanel" Height="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition MinHeight="35" MaxHeight="38" Height="37*"></RowDefinition>
+            <RowDefinition Height="482*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <DockPanel Margin="5,3,1,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Button DockPanel.Dock="Right" Width="50" Content="Find" Click="FindButton_Click" Name="FindButton"></Button>
+            <Separator DockPanel.Dock="Right" Width="2" Visibility="Hidden"></Separator>
+            <TextBox DockPanel.Dock="Left"   Text="Enter library path" VerticalContentAlignment="Center" Name="PathLibraryTextBox" FontSize="15"/>
+        </DockPanel>
+        <DockPanel Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  Margin="5,6,0,0">
+            <ScrollViewer >
+                <ItemsControl Name="ItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Top" >
+                                <Label Background="Bisque" FontSize="18" Content="{Binding Name}"></Label>
+                                <ItemsControl Name="NestedControl" ItemsSource="{Binding Converter={StaticResource convertMethod},ConverterParameter='GetMethods'}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Label  FontSize="14" Margin="10,0,0,-5"  VerticalContentAlignment="Top" HorizontalContentAlignment="Left" Content="{Binding Name }"></Label>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel >
+    </Grid>
 </Window>
